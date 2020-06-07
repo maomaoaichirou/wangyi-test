@@ -1,3 +1,5 @@
+# Download latest binary from release to EC2
+
 #!/usr/bin/env bash
 
 user=ec2-user
@@ -14,4 +16,3 @@ now=`date +"%Y-%m-%d %H:%M:%S"`
 
 echo "$now update $host $des code"
 
-echo "部署完毕"
