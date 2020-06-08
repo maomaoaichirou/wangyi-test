@@ -1,12 +1,12 @@
 
 # Deploy TechTestApp on AWS Cloud
----
+
 ## Overview
 This solution focuses on how to deplpoy the Servian TechTestApp to AWS cloud based on skills such as Github, circleci, docker, AWS EC2, RDS, VPC, ALB, ASG.
 
 References: [readme-serviantechtest file](readme-serviantechtest.md)    [assessment.md file](ASSESSMENT.md)
 
----
+
 ## Pre requisites for your deployment
 
 
@@ -28,8 +28,7 @@ References: [readme-serviantechtest file](readme-serviantechtest.md)    [assessm
 
 - To deploy secure infrastructure in AWS,  define Security Groups for  Application Load balancer(ALB) , EC2 and RDS database instance. ALB accept all incoming HTTP and HTTPS requests from Internet, the Application security group only accept incoming traffic from the load balancer. The Database security group only accept incoming traffic from the application servers.
   
-  
----
+
 ## Deployment Process
 
 ### 1. Create Postgresql database by AWS RDS
@@ -147,7 +146,7 @@ nohup ./TechTestApp serve &
 - http://54.66.230.45//api/tasks/ --404 page not found, because the relative code is commented out.
 - http://54.66.230.45/healthcheck/ --result: 0k
 
----
+
 ## Conclusion
 Based on a technical test assessment requirement -Simplicity, no superfluous dependencies and do not overengineer, I try to use a quick, simple and cheap deployment solution. However, we should consider other solutions like ECS&EKS or other cloud platform like Azure and GCP. Most importantly, it is my pleasure to experience the deployment process of unknown application. I really learn a lot from this practice. Thanks.
 
