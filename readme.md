@@ -17,7 +17,7 @@ References: [readme-serviantechtest file](readme-serviantechtest.md)    [assessm
 - Create/Login a Github account, generate an SSH key on EC2 and add the SSH key to your GH account
 - On EC2, clone git repo from github and unzip into desired location ./gocode
 - Create CircleCi account connecting with github repo, also need add ssh key.
----
+
 ## Deployment Architecture
 
 - To achieve High Availability in AWS, it is recommended to run services across multiple Availability Zones by using AWS services such as Load Balancers, and deploying Amazon EC2 instances in multiple Availability Zones.
