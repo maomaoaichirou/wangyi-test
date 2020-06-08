@@ -33,11 +33,6 @@ jobs:
             ls
             ./TechTestApp --version | sed -e 's/TechTestApp version /v./' > versionfile
             
-      # add ssh keys
-      #- add_ssh_keys:
-          #fingerprints:
-           # - "32:35:71:5f:e7:12:ed:a2:48:e9:aa:99:06:33:1f:1c"
-
 
       - run: 
           name: Build for linux
