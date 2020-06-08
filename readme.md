@@ -2,7 +2,7 @@
 # Deploy TechTestApp on AWS Cloud
 
 ## Overview
-This solution focuses on how to deplpoy the Servian TechTestApp to AWS cloud based on skills such as Github, circleci, docker, AWS EC2, RDS, VPC, ALB, ASG.
+This solution is focused on how to deplpoy the Servian TechTestApp to AWS cloud based on skills such as Github, circleci, docker, AWS EC2, RDS, VPC, ALB, ASG.
 
 References: [readme-serviantechtest file](readme-serviantechtest.md)    [assessment.md file](ASSESSMENT.md)
 
@@ -14,11 +14,13 @@ References: [readme-serviantechtest file](readme-serviantechtest.md)    [assessm
 - Configure AWS CLI with a new AWS Access Key and a secret generated on AWS
 - Create EC2 instance and use SSH to connect it
 - Install git, docker, golang/dep(if compile from source) on EC2
-- Create/Login a Github account, generate an SSH key on EC2 and add the SSH key to your GH account
+- Create/Login a Github account, generate an SSH key on EC2 and add the SSH key to GH account
 - On EC2, clone git repo from github and unzip into desired location ./gocode
 - Create CircleCi account connecting with github repo, also need add ssh key.
 
 ## Deployment Architecture
+
+![DeployFramework1](./DeployFramework1.png)
 
 - To achieve High Availability in AWS, it is recommended to run services across multiple Availability Zones by using AWS services such as Load Balancers, and deploying Amazon EC2 instances in multiple Availability Zones.
 
@@ -27,7 +29,13 @@ References: [readme-serviantechtest file](readme-serviantechtest.md)    [assessm
 - For database Highly Available, configuring ProstgreSQL database instances to run across multiple Availability Zones. One instance is the Master, which is handling all requests. Another instance will be launched as the Secondary instance, which will take over in case the Master fails.  Enable Storage autoscaling to allow the storage to increase once the specified threshold is exceeded.
 
 - To deploy secure infrastructure in AWS,  define Security Groups for  Application Load balancer(ALB) , EC2 and RDS database instance. ALB accept all incoming HTTP and HTTPS requests from Internet, the Application security group only accept incoming traffic from the load balancer. The Database security group only accept incoming traffic from the application servers.
-  
+
+- To automation secure infrastructure in AWS,  define Security Groups for  Application Load balancer(ALB) , EC2 and RDS database instance. ALB accept all incoming HTTP and HTTPS requests from Internet, the Application security group only accept incoming traffic from the load balancer. The Database security group only accept incoming traffic from the application servers.
+
+- To realize automated deployment, use github and circleci to automate code commits, builds,tests, deployments and version control, also use few linux commands/shell scripting.
+
+- For considering Simplicity, deploy app on a EC2 instance, and make a image from it for further front end auto scaling group. Three methods for deploy app on EC2: (1) clone github repo, compile source code, then build and deploy app on EC2; (2) clone github repo, use docker to bulid image from dockerfile and run container on EC2; (3) Use CircleCI connecting Github to  
+
 
 ## Deployment Process
 
@@ -129,14 +137,13 @@ kill $pid
 nohup ./TechTestApp serve &
 ```
 ### 3. Improved deployment on AWS
-#### Security measures
 
 - Create Image from EC2 embeddend deployed app
-- Create APP secutiy group and Database security group
+- Create APP security group and Database security group
 - Create two public subnets and two private subnets in 2 AZ
 - Create an application load balancer and ALB security group
 - Create an auto scaling group
-- Edit Postgresql instance and enable Multi-AZ deployment and Storage autoscaling
+- Edit PostgreSQL instance and enable Multi-AZ deployment and Storage autoscaling (not be required for a simple APP)
 
 
 ## check endpoints status
@@ -150,7 +157,7 @@ nohup ./TechTestApp serve &
 
 
 ## Conclusion
-Based on a technical test assessment requirement -Simplicity, no superfluous dependencies and do not overengineer, I try to use a quick, simple and cheap deployment solution. However, we should consider other solutions like ECS&EKS or other cloud platform like Azure and GCP. Most importantly, it is my pleasure to experience the deployment process of unknown application. I really learn a lot from this practice. Thanks.
+Based on a technical test assessment requirement -Simplicity, I try to use a quick, simple and cheap deployment solution, instead of other solutions like ECS/EKS on AWS or other cloud platforms like Azure and GCP. I really enjoyed the deployment process of unknown application. I have learned a lot from this case. Thanks.
 
 
 
