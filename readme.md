@@ -143,7 +143,7 @@ nohup ./TechTestApp serve &
 
 - http://54.66.230.45/   --load the SPA to create, delete tasks
 
-![servian](.\servian_index.png)
+![servian index](./servian_index.png)
 
 - http://54.66.230.45//api/tasks/ --404 page not found, because the relative code is commented out.
 - http://54.66.230.45/healthcheck/ --result: 0k
