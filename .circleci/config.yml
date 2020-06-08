@@ -88,60 +88,7 @@ jobs:
 
             zip -r "output/TechTestApp_${version}_darwin.zip" dist/*
 
-      # build windows 64 bit
-      - run: 
-          name: Build Windows 64bit
-          environment:
-            GOOS: windows
-            GOARCH: amd64
-          command: | 
-            # cross compile to windows in linux requires a few extra bits
-            # this gets around permission issues
-            sudo chmod -R 0777 /usr/local/go/
-            go get github.com/inconshreveable/mousetrap
-            if [ -d "dist" ]; then
-              rm -rf dist
-            fi
-            
-            mkdir -p dist
-            
-            go build -v -o TechTestApp.exe .
-            
-            cp TechTestApp.exe dist/
-            cp -r assets dist/
-            cp conf.toml dist/
-            
-            rm TechTestApp.exe
-
-            export version=$(cat versionfile)
-
-            zip -r "output/TechTestApp_${version}_win64.zip" dist/*
-
-      #build windows 32 bit
-      - run: 
-          name: Build Windows 32bit
-          environment:
-            GOOS: windows
-            GOARCH: 386
-          command: |
-            if [ -d "dist" ]; then
-              rm -rf dist
-            fi
-            
-            mkdir -p dist
-            
-            go build -v -o TechTestApp.exe .
-            
-            cp TechTestApp.exe dist/
-            cp -r assets dist/
-            cp conf.toml dist/
-            
-            rm TechTestApp.exe
-
-            export version=$(cat versionfile)
-
-            zip -r "output/TechTestApp_${version}_win32.zip" dist/*
-
+     
       - run:
           name: Release if new version
           command: |
