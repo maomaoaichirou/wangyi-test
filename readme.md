@@ -13,16 +13,16 @@ References: [readme-serviantechtest file](readme-serviantechtest.md)    [assessm
 - Login to AWS Management Console and Generate a new KeyPair. Save the downloaded key
 - Configure AWS CLI with a new AWS Access Key and a secret generated on AWS
 - Create EC2 instance and use SSH to connect it
-- Install git, docker, golang/dep(if compile from source) on EC2
+- Install git, docker, golang(if compile from source) on EC2
 - Create/Login a Github account, generate an SSH key on EC2 and add the SSH key to GH account
-- On EC2, clone git repo from github and unzip into desired location ./gocode
-- Create CircleCi account connecting with github repo, also need add ssh key.
+- On EC2, clone git repo from github and unzip into desired location
+- Create CircleCi account connecting with github repo
 
 ## Deployment Architecture
 
 ![DeployFramework1](./DeployFramework1.png)
 
-- To achieve High Availability in AWS, it is recommended to run services across multiple Availability Zones by using AWS services such as Load Balancers, and deploying Amazon EC2 instances in multiple Availability Zones.
+- To achieve High Availability in AWS, it is recommended to use AWS services such as Load Balancers, and deploying Amazon EC2 instances in multiple Availability Zones.
 
 - To achieve front end auto scaling, create Amazon EC2 Auto Scaling Group to launch or terminate APP instances automatically based on user-defined policies, schedules, and health checks, and automatically distributes instances across multiple Availability Zones to make applications Highly Available.
 
@@ -34,7 +34,7 @@ References: [readme-serviantechtest file](readme-serviantechtest.md)    [assessm
 
 - To realize automated deployment, use github and circleci to automate code commits, builds,tests, deployments and version control, also use few linux commands/shell scripting.
 
-- For considering Simplicity, deploy app on a EC2 instance, and make a image from it for further front end auto scaling group. Three methods for deploy app on EC2: (1) clone github repo, compile source code, then build and deploy app on EC2; (2) clone github repo, use docker to bulid image from dockerfile and run container on EC2; (3) Use CircleCI connecting Github to  
+- For considering Simplicity, deploy app on a EC2 instance, and make a image from it for further front end auto scaling group. Three methods for deploy app on EC2: (1) clone github repo, compile source code, then build and deploy app on EC2; (2) clone github repo, use docker to bulid image from dockerfile and run container on EC2; (3) download the latest release from CircleCI, and start the serve on EC2. 
 
 
 ## Deployment Process
@@ -43,7 +43,7 @@ References: [readme-serviantechtest file](readme-serviantechtest.md)    [assessm
 
 Create Postgresql Database instance by using RDS.
 
-update `conf.toml` with defined database settings
+Update `conf.toml` with defined database settings.
 
 ```yml
 "DbUser" = "postgres"
@@ -60,21 +60,41 @@ update `conf.toml` with defined database settings
 
 #### 2.1 Deploy from the source code on EC2
 
+Compile the source code.
+```bash
+go get -d github.com/Servian/TechTestApp
 
-Start sever by ` start.sh` file
+sh build.sh
+```
+Run [start.sh](./start.sh) to start sever.
 
 ```bash
-#!/bin.bash
+#!/bin/bash
+# check the zip file
+if [ -f "/opt/gocode-devops/*.zip" ];then
+     mv -f ./*.zip /tmp/
+else
+     echo "Zip file dose not exist"
+fi
+# check current process
+ps -ef|grep TechTestApp|grep -v 'grep'|awk '{print $2}'
+
+if [ $? == 0 ];then
+     echo "No Found Process"
+else 
+     echo "The process ID for $pid"
+     PID=`ps -ef|grep TechTestApp|grep -v 'grep'`
+     kill -9 $PID
+fi
 # create a database and seed it with test data
-./TechTestApp updatedb -s
-pid=`ps -ef|grep TechTestApp|grep -v "grep"`
-kill $pid
+/opt/gocode/TechTestApp updatedb -s
+sleep 2
 # start serving requests
-nohup ./TechTestApp serve &
+nohup ./TechTestApp serve >output 2>&1 &
 
 ```
 #### 2.2 Deploy from Dockerfile on EC2
-update `conf.toml` with database settings
+update `conf.toml` with database settings.
 
 ```yml
 "DbUser" = "postgres"
@@ -87,55 +107,32 @@ update `conf.toml` with database settings
 
 ```
 
-Build docker image and run container
+Build docker image and run container.
 
 ```
 # build docker images
 docker build . -t techtestapp:latest 
-# run docker container service
+# run docker container services
+docker run -d -p 3000:3000 techtestapp updatedb -s
 docker run -d -p 3000:3000 techtestapp serve
 ```
 #### 2.3 Automated build, test, deploy on CircleCI Plateform
-On CircleCi Platform, use the pipeline to build, test and deploy APP based on .circleci/config.yml
+On CircleCi Platform, use the pipeline to build, test and deploy APP based on [.circleci/config.yml](./.circleci/config.yml) .
 
 
 ![Deploy on CircleCI](./CircleCI-Appdeploy.png)
 
 
-Download artifacts after successfully deploy using the URL
+Download artifacts after successfully deploy.
 ```
-https://5-270295100-gh.circle-artifacts.com/0/output/TechTestApp_v.0.6.0_linux64.zip
-```
-Or 
+wget https://5-270295100-gh.circle-artifacts.com/0/output/TechTestApp_v.0.6.0_linux64.zip
 
-Automated download the latest release to EC2 desired directory.
-``` bash 
-
-#!/usr/bin/env bash
-
-user=ec2-user
-host=54.66.230.45
-src=`pwd`"/"
-des=/opt/gocode
-now=`date +"%Y-%m-%d %H:%M:%S"`
-
-rsync -vzrc --delete  --exclude ".git"  --exclude ".env"   --exclude ".circleci"   $src  $user@$host:$des
-
-ssh $user@$host "sudo chown -R ec2-user:ec2-user $des"
-
-echo "$now update $host $des code"
-
+unzip TechTestApp_v.0.6.0_linux64.zip
 ```
 
-Start the server by execute the command sh start.sh.
-```
-#!/bin.bash
 
-./TechTestApp updatedb -s
-pid=`ps -ef|grep TechTestApp|grep -v "grep"`
-kill $pid
-nohup ./TechTestApp serve &
-```
+Run [start.sh](./start.sh) to start sever.
+
 ### 3. Improved deployment on AWS
 
 - Create Image from EC2 embeddend deployed app
@@ -143,7 +140,7 @@ nohup ./TechTestApp serve &
 - Create two public subnets and two private subnets in 2 AZ
 - Create an application load balancer and ALB security group
 - Create an auto scaling group
-- Edit PostgreSQL instance and enable Multi-AZ deployment and Storage autoscaling (not be required for a simple APP)
+- Edit PostgreSQL instance and enable Multi-AZ deployment
 
 
 ## check endpoints status
@@ -152,12 +149,12 @@ nohup ./TechTestApp serve &
 
 ![servian index](./servian_index.png)
 
-- http://54.66.230.45//api/tasks/ --404 page not found, because the relative code is commented out.
-- http://54.66.230.45/healthcheck/ --result: 0k
+- http://54.66.230.45//api/tasks/ --result:404 page not found, because the relative code is commented out.
+- http://54.66.230.45/healthcheck/ --result: Ok
 
 
 ## Conclusion
-Based on a technical test assessment requirement -Simplicity, I try to use a quick, simple and cheap deployment solution, instead of other solutions like ECS/EKS on AWS or other cloud platforms like Azure and GCP. I really enjoyed the deployment process of unknown application. I have learned a lot from this case. Thanks.
+Based on a technical test assessment requirement -Simplicity, I try to use a quick, simple and cheap deployment solution, instead of other solutions like ECS/EKS on AWS. I really enjoyed the deployment process of unknown application. I have learned a lot from this case. Thanks.
 
 
 
