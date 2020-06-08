@@ -94,18 +94,7 @@ nohup ./TechTestApp serve >output 2>&1 &
 
 ```
 #### 2.2 Deploy from Dockerfile on EC2
-update `conf.toml` with database settings.
-
-```yml
-"DbUser" = "postgres"
-"DbPassword" = "1234qwer"
-"DbName" = "app"
-"DbPort" = "5432"
-"DbHost" = "docker-test.cy77eloe52fd.ap-southeast-2.rds.amazonaws.com"
-"ListenHost" = "0.0.0.0"
-"ListenPort" = "3000"
-
-```
+update `conf.toml` , set  `"ListenPort" = "3000"` .
 
 Build docker image and run container.
 
