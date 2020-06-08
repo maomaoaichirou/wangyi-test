@@ -94,7 +94,7 @@ nohup ./TechTestApp serve >output 2>&1 &
 
 ```
 #### 2.2 Deploy from Dockerfile on EC2
-update `conf.toml` , set  `"ListenPort" = "3000"` .
+Update `conf.toml` , set  `"ListenPort" = "3000"` .
 
 Build docker image and run container.
 
