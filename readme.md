@@ -2,7 +2,7 @@
 # Deploy TechTestApp on AWS Cloud
 
 ## Overview
-This solution is focused on how to deplpoy the Servian TechTestApp to AWS cloud based on skills such as Github, circleci, docker, AWS EC2, RDS, VPC, ALB, ASG.
+This solution is focused on how to deploy the Servian TechTestApp to AWS cloud based on skills such as Github, Circleci, Docker, AWS EC2, RDS, VPC, ALB, ASG.
 
 References: [readme-serviantechtest file](readme-serviantechtest.md)    [assessment.md file](ASSESSMENT.md)
 
