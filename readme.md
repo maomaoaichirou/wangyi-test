@@ -41,7 +41,7 @@ References: [readme-serviantechtest file](readme-serviantechtest.md)    [assessm
 
 ### 1. Create Postgresql database by AWS RDS
 
-Create Postgresql Database instance by using RDS.
+Create PostgreSQL Database instance by using RDS.
 
 Update `conf.toml` with defined database settings.
 
