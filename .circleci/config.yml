@@ -16,6 +16,11 @@ jobs:
       - run: go build -v
       - run: go test -v -race -cover ./...
 
+      - add_ssh_keys:
+          fingerprints:
+              - "90:d3:be:73:40:1a:f2:8f:ea:d9:a3:88:4b:63:63:75"
+      - run: echo $REMOTE_HOSTKEY >> ~/.ssh/known_hosts
+
   deploy:
     working_directory: /go/src/github.com/servian/TechTestApp
     docker:
@@ -28,17 +33,18 @@ jobs:
           name: Setup
           command: |
             go get -v -t -d ./...
-            mkdir output
+            mkdir -p output
             go build -v -o TechTestApp .
             ls
             ./TechTestApp --version | sed -e 's/TechTestApp version /v./' > versionfile
-            
 
       - run: 
+
           name: Build for linux
           environment:
             GOOS: linux
             GOARCH: amd64
+            
           command: |
             if [ -d "dist" ]; then
               rm -rf dist
@@ -46,44 +52,24 @@ jobs:
             
             mkdir -p dist
             
-            go build -v -o TechTestApp .
+            go build -v -o TechTestApp .x
             
             cp TechTestApp dist/
             cp -r assets dist/
             cp conf.toml dist/
             
             rm TechTestApp
-
             export version=$(cat versionfile)
             
             zip -r "output/TechTestApp_${version}_linux64.zip" dist/*
-
-      # build for macos
-      - run: 
-          name: Build for macOS
-          environment:
-            GOOS: darwin
-            GOARCH: amd64
+            #scp -r dist/* root@54.66.230.45:/opt/gocode-devops
+           
+      - run:
+          name: Deploy Golang Application
           command: |
-            if [ -d "dist" ]; then
-              rm -rf dist
-            fi
-            
-            mkdir -p dist
-            
-            go build -v -o TechTestApp .
-            
-            cp TechTestApp dist/
-            cp -r assets dist/
-            cp conf.toml dist/
-            
-            rm TechTestApp
+            unzip /tmp/TechTestApp_${version}_linux64.zip -d /opt/gocode-devops/
+            mv -f /opt/gocode-devops/dist/* ../
 
-            export version=$(cat versionfile)
-
-            zip -r "output/TechTestApp_${version}_darwin.zip" dist/*
-
-     
       - run:
           name: Release if new version
           command: |
@@ -93,7 +79,6 @@ jobs:
             export prerelease=$(echo ${version} | grep 'pre-release')
             if [ -z "${tagvalue}" ]; then
               go get github.com/tcnksm/ghr
-
               if [ -z "${prerelease}" ]; then
                 echo "No pre-release in version, creating release"
                 ghr -u servian ${version} output
@@ -102,6 +87,7 @@ jobs:
                 ghr -u servian -prerelease ${version} output
               fi
             fi
+
 
       - store_artifacts:
           path: output
